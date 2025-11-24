@@ -1,0 +1,36 @@
+# Ignore target directory (build artifacts)
+target/
+
+# Ignore IDE files
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore Docker files themselves
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore Maven wrapper files (we'll use the Maven image)
+.mvn/
+mvnw
+mvnw.cmd
