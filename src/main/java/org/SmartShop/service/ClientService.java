@@ -1,6 +1,6 @@
 package org.SmartShop.service;
 
-import org.SmartShop.dto.*;
+import org. SmartShop.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
@@ -22,5 +22,4 @@ public interface ClientService {
     ClientDto updateClientStatistics(Long clientId);
 
     Page<ClientDto> searchClients(String searchTerm, Pageable pageable);
-
 }
