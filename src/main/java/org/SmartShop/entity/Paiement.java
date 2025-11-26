@@ -3,6 +3,7 @@ package org.SmartShop.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.SmartShop.entity.enums.PaymentStatus;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -12,22 +13,52 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Paiement {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "commande_id", nullable = false)
     private Commande commande;
 
-    private int numeroPaiement;
+    @Column(name = "payment_number", nullable = false)
+    private Integer paymentNumber;
 
-    private double montant;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal montant;
+
+    @Column(name = "payment_type", nullable = false)
+    private String paymentType; // ESPECES, CHEQUE, VIREMENT
 
     @Enumerated(EnumType.STRING)
-    private PaymentStatus status;
+    @Builder.Default
+    private PaymentStatus status = PaymentStatus.EN_ATTENTE;
 
-    private LocalDate datePaiement;
-    private LocalDate dateEncaissement;
+    @Column(name = "payment_date")
+    @Builder.Default
+    private LocalDate paymentDate = LocalDate.now();
+
+    @Column(name = "encashment_date")
+    private LocalDate encashmentDate;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate; // For checks
 
     private String reference;
-    private String banque;
+    private String bank;
+
+    public void validatePayment() {
+        if ("ESPECES".equals(paymentType) && montant. compareTo(new BigDecimal("20000")) > 0) {
+            throw new IllegalArgumentException("Paiement en espèces limité à 20,000 DH");
+        }
+    }
+
+    public void encash() {
+        this.status = PaymentStatus. ENCAISSE;
+        this.encashmentDate = LocalDate.now();
+    }
+
+    public void reject() {
+        this.status = PaymentStatus.REJETE;
+    }
 }

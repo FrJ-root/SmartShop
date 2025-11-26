@@ -1,29 +1,30 @@
 package org.SmartShop.service.impl;
 
-import org.SmartShop.dto.*;
-
+import org.SmartShop.dto.client.*;
+import org.SmartShop.dto.order.OrderHistoryDto;
 import org.SmartShop.entity.enums.CustomerTier;
 import org.SmartShop.service.ClientService;
-import org.springframework.data.domain.Page;
+import org. springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.stereotype.Service;
+import org.springframework. stereotype.Service;
 
 import java.util.List;
 import java.util.ArrayList;
 
 @Service
 public class ClientServiceImpl implements ClientService {
+    // Your existing implementation
 
     @Override
     public ClientDto createClient(CreateClientRequest request) {
         return ClientDto.builder()
                 .id(1L)
                 .nom(request.getNom())
-                .email(request.getEmail())
+                . email(request.getEmail())
                 .tier(CustomerTier.BASIC)
                 .totalOrders(0)
-                .totalSpent(0.0)
+                . totalSpent(java.math.BigDecimal. ZERO)
                 .build();
     }
 
@@ -33,9 +34,9 @@ public class ClientServiceImpl implements ClientService {
                 .id(id)
                 .nom("Test Client")
                 .email("test@example.com")
-                .tier(CustomerTier.BASIC)
+                . tier(CustomerTier.BASIC)
                 .totalOrders(0)
-                .totalSpent(0.0)
+                .totalSpent(java.math.BigDecimal.ZERO)
                 .build();
     }
 
@@ -52,7 +53,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void deleteClient(Long id) {
-        // Do nothing for now
+        // Implementation
     }
 
     @Override
