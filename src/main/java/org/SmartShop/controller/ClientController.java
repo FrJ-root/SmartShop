@@ -1,73 +1,78 @@
 package org.SmartShop.controller;
 
-import org.SmartShop.dto. client.*; // Changed from org.SmartShop.dto
-import org.SmartShop. dto.order. OrderHistoryDto;
-import org.SmartShop.service.ClientService;
-import org. springframework.beans.factory.annotation. Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain. Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework. web.bind.annotation.*;
-
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.SmartShop.dto.client.ClientOrderHistoryDTO;
+import org.SmartShop.dto.client.ClientRequestDTO;
+import org.SmartShop.dto.client.ClientResponseDTO;
+import org.SmartShop.entity.Client;
+import org.SmartShop.entity.enums.UserRole;
+import org.SmartShop.repository.ClientRepository;
+import org.SmartShop.service.ClientService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/clients")
+@RequiredArgsConstructor
 public class ClientController {
 
-    @Autowired
-    private ClientService clientService;
+    private final ClientService clientService;
+    private final ClientRepository clientRepository; // Needed for ownership check
 
+    // Create Client (Admin Only - usually)
     @PostMapping
-    public ResponseEntity<ClientDto> createClient(@Valid @RequestBody CreateClientRequest request) {
-        ClientDto createdClient = clientService.createClient(request);
-        return ResponseEntity.ok(createdClient);
+    public ResponseEntity<ClientResponseDTO> createClient(@RequestBody @Valid ClientRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(clientService.createClient(dto));
     }
 
+    // Get Client Details
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDto> getClientById(@PathVariable Long id) {
-        ClientDto client = clientService.getClientById(id);
-        return ResponseEntity.ok(client);
+    public ResponseEntity<ClientResponseDTO> getClient(@PathVariable Long id, HttpSession session) {
+        checkAccess(id, session); // Security check
+        return ResponseEntity.ok(clientService.getClientById(id));
     }
 
-    @GetMapping
-    public ResponseEntity<Page<ClientDto>> getAllClients(Pageable pageable) {
-        Page<ClientDto> clients = clientService.getAllClients(pageable);
-        return ResponseEntity.ok(clients);
-    }
-
+    // Update Client
     @PutMapping("/{id}")
-    public ResponseEntity<ClientDto> updateClient(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateClientRequest request) {
-        ClientDto updatedClient = clientService.updateClient(id, request);
-        return ResponseEntity.ok(updatedClient);
+    public ResponseEntity<ClientResponseDTO> updateClient(@PathVariable Long id, @RequestBody @Valid ClientRequestDTO dto, HttpSession session) {
+        checkAccess(id, session);
+        return ResponseEntity.ok(clientService.updateClient(id, dto));
     }
 
+    // Delete Client (Admin Only)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
+        // Note: Interceptor usually blocks Clients from DELETE, but double check logic if needed
         clientService.deleteClient(id);
         return ResponseEntity.noContent().build();
     }
 
+    // Get Order History [cite: 23]
     @GetMapping("/{id}/orders")
-    public ResponseEntity<List<OrderHistoryDto>> getClientOrderHistory(@PathVariable Long id) {
-        List<OrderHistoryDto> orderHistory = clientService.getClientOrderHistory(id);
-        return ResponseEntity.ok(orderHistory);
+    public ResponseEntity<List<ClientOrderHistoryDTO>> getOrderHistory(@PathVariable Long id, HttpSession session) {
+        checkAccess(id, session);
+        return ResponseEntity.ok(clientService.getClientOrderHistory(id));
     }
 
-    @PutMapping("/{id}/statistics")
-    public ResponseEntity<ClientDto> updateClientStatistics(@PathVariable Long id) {
-        ClientDto updatedClient = clientService.updateClientStatistics(id);
-        return ResponseEntity.ok(updatedClient);
-    }
+    // --- Helper for Ownership Security ---
+    private void checkAccess(Long requestedClientId, HttpSession session) {
+        UserRole role = (UserRole) session.getAttribute("USER_ROLE");
+        Long sessionUserId = (Long) session.getAttribute("USER_ID");
 
-    @GetMapping("/search")
-    public ResponseEntity<Page<ClientDto>> searchClients(
-            @RequestParam String term,
-            Pageable pageable) {
-        Page<ClientDto> clients = clientService.searchClients(term, pageable);
-        return ResponseEntity.ok(clients);
+        if (role == UserRole.ADMIN) return; // Admin can see all
+
+        // If Client, they must own this profile
+        Client client = clientRepository.findById(requestedClientId)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+
+        if (!client.getLinkedAccount().getId().equals(sessionUserId)) {
+            throw new RuntimeException("Access Denied: You can only view your own data");
+            // Global Exception Handler will map this to 403 or 401
+        }
     }
 }

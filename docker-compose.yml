@@ -11,8 +11,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://smartshop-db:5432/smartshop
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin
-    networks:
-      - smartshop-net
 
   smartshop-db:
     image: postgres:15
@@ -25,8 +23,6 @@ services:
       - "5433:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
-    networks:
-      - smartshop-net
 
   pgadmin:
     image: dpage/pgadmin4
@@ -38,11 +34,6 @@ services:
       - "5050:80"
     depends_on:
       - smartshop-db
-    networks:
-      - smartshop-net
-
-networks:
-  smartshop-net:
 
 volumes:
   db-data:

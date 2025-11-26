@@ -1,19 +1,14 @@
 package org.SmartShop.service;
 
-import org.SmartShop.dto.client.*;
-import org.SmartShop.dto.order.OrderHistoryDto;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.SmartShop.dto.client.ClientOrderHistoryDTO;
+import org.SmartShop.dto.client.ClientRequestDTO;
+import org.SmartShop.dto.client.ClientResponseDTO;
 import java.util.List;
 
 public interface ClientService {
-
-    ClientDto createClient(CreateClientRequest request);
-    ClientDto getClientById(Long id);
-    Page<ClientDto> getAllClients(Pageable pageable);
-    ClientDto updateClient(Long id, UpdateClientRequest request);
+    ClientResponseDTO createClient(ClientRequestDTO dto);
+    ClientResponseDTO getClientById(Long id);
+    ClientResponseDTO updateClient(Long id, ClientRequestDTO dto);
     void deleteClient(Long id);
-    List<OrderHistoryDto> getClientOrderHistory(Long clientId);
-    ClientDto updateClientStatistics(Long clientId);
-    Page<ClientDto> searchClients(String searchTerm, Pageable pageable);
+    List<ClientOrderHistoryDTO> getClientOrderHistory(Long id);
 }

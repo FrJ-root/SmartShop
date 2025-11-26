@@ -3,23 +3,24 @@ package org.SmartShop.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class OrderItem {
+import java.math.BigDecimal;
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Entity
+@Data @NoArgsConstructor @AllArgsConstructor @Builder
+public class OrderItem { // [cite: 133]
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private int quantity;
+    private BigDecimal unitPrice; // Price at moment of purchase
+    private BigDecimal lineTotal;
+
     @ManyToOne
+    @JoinColumn(name = "product_id")
     private Product product;
 
-    private int quantity;
-    private double unitPrice;
-    private double lineTotal;
-
     @ManyToOne
-    private Commande commande;
+    @JoinColumn(name = "order_id")
+    private Order order;
 }

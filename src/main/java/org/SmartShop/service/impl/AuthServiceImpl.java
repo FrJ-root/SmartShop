@@ -1,59 +1,46 @@
 package org.SmartShop.service.impl;
 
-import org.SmartShop.dto.auth.LoginRequest;
-import org.SmartShop.dto.auth.LoginResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.SmartShop.dto.auth.AuthResponseDTO;
+import org.SmartShop.dto.auth.LoginRequestDTO;
 import org.SmartShop.entity.User;
 import org.SmartShop.repository.UserRepository;
 import org.SmartShop.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import jakarta.servlet.http.HttpSession;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    private static final String USER_SESSION_KEY = "authenticated_user";
+    private final UserRepository userRepository;
 
     @Override
-    public LoginResponse login(LoginRequest loginRequest, HttpSession session) {
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElse(null);
+    public AuthResponseDTO login(LoginRequestDTO request, HttpSession session) {
+        // 1. Find User
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("Invalid credentials")); // Will be mapped to 401
 
-        if (user == null || !user.getPassword().equals(loginRequest.getPassword())) {
-            return LoginResponse.builder()
-                    .message("Nom d'utilisateur ou mot de passe incorrect")
-                    .build();
+        // 2. Check Password (Plain text comparison as per strict 'No Spring Security' constraints)
+        // In production, use a standalone hashing library like BCrypt or Argon2
+        if (!user.getPassword().equals(request.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
         }
 
-        // Store user in session
-        session.setAttribute(USER_SESSION_KEY, user);
-        session.setMaxInactiveInterval(30 * 60); // 30 minutes
+        // 3. Store in Session (The core requirement) [cite: 12]
+        session.setAttribute("USER_ID", user.getId());
+        session.setAttribute("USER_ROLE", user.getRole());
 
-        return LoginResponse.builder()
-                .message("Connexion réussie")
-                .role(user.getRole())
+        // 4. Return DTO
+        return AuthResponseDTO.builder()
+                .id(user.getId())
                 .username(user.getUsername())
-                .clientId(user.getClient() != null ? user.getClient().getId() : null)
-                .sessionId(session.getId())
+                .role(user.getRole())
                 .build();
     }
 
     @Override
     public void logout(HttpSession session) {
-        session.removeAttribute(USER_SESSION_KEY);
-        session.invalidate();
-    }
-
-    @Override
-    public User getCurrentUser(HttpSession session) {
-        return (User) session.getAttribute(USER_SESSION_KEY);
-    }
-
-    @Override
-    public boolean isAuthenticated(HttpSession session) {
-        return session.getAttribute(USER_SESSION_KEY) != null;
+        session.invalidate(); // Destroys the session [cite: 127]
     }
 }
