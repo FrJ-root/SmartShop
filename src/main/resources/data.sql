@@ -23,12 +23,12 @@ INSERT INTO product (nom, prixht, stock, deleted) VALUES
 
 -- Insertion d'utilisateurs de test (pour l'authentification future)
 INSERT INTO app_user (username, password, role, client_id) VALUES
-('admin', 'admin123', 'ADMIN', NULL),
-('microsoft.ma', 'password123', 'CLIENT', 1),
-('dell.ma', 'password123', 'CLIENT', 2),
-('hp.ma', 'password123', 'CLIENT', 3),
-('lenovo.ma', 'password123', 'CLIENT', 4),
-('apple.ma', 'password123', 'CLIENT', 5);
+('admin', 'pass123', 'ADMIN', NULL),
+('microsoft.ma', 'pass123', 'CLIENT', 1),
+('dell.ma', 'pass123', 'CLIENT', 2),
+('hp.ma', 'pass123', 'CLIENT', 3),
+('lenovo.ma', 'pass123', 'CLIENT', 4),
+('apple.ma', 'pass123', 'CLIENT', 5);
 
 -- Insertion de commandes de test
 INSERT INTO commande (client_id, date, sous_total, remise, montantht, tva, totalttc, montant_restant, code_promo, status) VALUES

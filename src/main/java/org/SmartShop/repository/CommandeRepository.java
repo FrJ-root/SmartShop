@@ -13,7 +13,7 @@ public interface CommandeRepository extends JpaRepository<Commande, Long> {
 
     List<Commande> findByClientAndStatus(Client client, OrderStatus status);
 
-    List<Commande> findByClientOrderByDateDesc(Client client);
+    List<Commande> findByClientOrderByCreatedAtDesc(Client client);
 
     List<Commande> findByClient(Client client);
 

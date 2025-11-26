@@ -1,0 +1,17 @@
+# Exclude unnecessary files from Docker build context
+target/
+.mvn/
+mvnw
+mvnw.cmd
+.git/
+.gitignore
+README.md
+*.md
+.idea/
+*.iml
+.vscode/
+.DS_Store
+*.log
+.env
+docker-compose.yml
+Dockerfile
