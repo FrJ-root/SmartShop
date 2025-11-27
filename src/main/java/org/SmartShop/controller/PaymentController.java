@@ -21,13 +21,17 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<PaymentResponseDTO> recordPayment(@RequestBody @Valid PaymentRequestDTO dto, HttpSession session) {
+    public ResponseEntity<PaymentResponseDTO> recordPayment(
+            @RequestBody @Valid PaymentRequestDTO dto,
+            HttpSession session) {
         checkAdminAccess(session);
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.recordPayment(dto));
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByOrder(@PathVariable Long orderId, HttpSession session) {
+    public ResponseEntity<List<PaymentResponseDTO>> getPaymentsByOrder(
+            @PathVariable Long orderId,
+            HttpSession session) {
         return ResponseEntity.ok(paymentService.getPaymentsByOrder(orderId));
     }
 

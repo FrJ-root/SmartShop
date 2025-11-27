@@ -13,10 +13,11 @@ public class PaymentRequestDTO {
     @NotNull(message = "Order ID is required")
     private Long orderId;
 
-    @NotNull @Positive
+    @NotNull(message = "Amount is required")
+    @Positive(message = "Amount must be positive")
     private BigDecimal amount;
 
-    @NotNull(message = "Payment type is required (ESPECES, CHEQUE, VIREMENT)")
+    @NotNull(message = "Payment type is required")
     private String paymentType;
 
     private String reference;
