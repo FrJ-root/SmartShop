@@ -21,36 +21,29 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    // Créer une commande
     @PostMapping
     public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody @Valid OrderRequestDTO dto, HttpSession session) {
-        // Optionnel : Vérifier que le client connecté crée bien une commande pour LUI-MÊME
-        // Pour l'instant, on suppose que l'AuthInterceptor fait le gros du travail
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(dto));
     }
 
-    // Admin: Changer statut (Valider/Annuler) [cite: 166]
     @PatchMapping("/{id}/status")
     public ResponseEntity<OrderResponseDTO> updateStatus(
             @PathVariable Long id,
             @RequestParam OrderStatus status,
             HttpSession session) {
 
-        checkAdminAccess(session); // Seul l'admin valide
+        checkAdminAccess(session);
         return ResponseEntity.ok(orderService.updateStatus(id, status));
     }
 
-    // Lister (Admin voit tout)
     @GetMapping
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders(HttpSession session) {
         checkAdminAccess(session);
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    // Voir une commande (Détail)
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponseDTO> getOrder(@PathVariable Long id) {
-        // TODO: Ajouter vérification que le client voit SA commande
         return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
