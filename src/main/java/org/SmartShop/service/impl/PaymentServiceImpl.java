@@ -99,6 +99,7 @@ public class PaymentServiceImpl implements PaymentService {
             default:
                 throw new RuntimeException("Invalid Payment Type. Accepted: ESPECES, CHEQUE, VIREMENT");
         }
+
     }
 
     @Override
@@ -107,4 +108,5 @@ public class PaymentServiceImpl implements PaymentService {
                 .map(paymentMapper::toDto)
                 .toList();
     }
+
 }
