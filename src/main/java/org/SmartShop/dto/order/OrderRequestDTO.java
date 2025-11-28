@@ -15,6 +15,6 @@ public class OrderRequestDTO {
     @NotEmpty(message = "Order must contain items")
     private List<OrderItemRequestDTO> items;
 
-    @Pattern(regexp = "PROMO-[A-Z0-9]{4}", message = "Invalid Promo Code format") // [cite: 103]
+    @Pattern(regexp = "PROMO-[A-Z0-9]{4}", message = "Invalid Promo Code format")
     private String promoCode;
 }

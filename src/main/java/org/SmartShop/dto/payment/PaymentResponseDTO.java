@@ -1,9 +1,9 @@
 package org.SmartShop.dto.payment;
 
-import lombok.Data;
 import org.SmartShop.entity.enums.PaymentStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import lombok.Data;
 
 @Data
 public class PaymentResponseDTO {
@@ -11,6 +11,6 @@ public class PaymentResponseDTO {
     private int paymentNumber;
     private BigDecimal amount;
     private String paymentType;
-    private LocalDate paymentDate;
     private PaymentStatus status;
+    private LocalDate paymentDate;
 }

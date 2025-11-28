@@ -1,12 +1,11 @@
 package org.SmartShop.dto.payment;
 
+import lombok.Data;
+import java.time.LocalDate;
+import java.math.BigDecimal;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.Data;
 import org.SmartShop.entity.enums.PaymentStatus;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Data
 public class PaymentRequestDTO {

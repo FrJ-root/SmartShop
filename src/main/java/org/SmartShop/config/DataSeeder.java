@@ -1,12 +1,12 @@
 package org.SmartShop.config;
 
-import org.SmartShop.entity.PromoCode;
 import org.SmartShop.entity.User;
+import org.SmartShop.entity.PromoCode;
 import org.SmartShop.entity.enums.UserRole;
-import org.SmartShop.repository.PromoCodeRepository;
 import org.SmartShop.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.SmartShop.repository.PromoCodeRepository;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -31,4 +31,5 @@ public class DataSeeder {
             }
         };
     }
+
 }

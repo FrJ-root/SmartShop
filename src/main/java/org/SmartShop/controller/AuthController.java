@@ -1,17 +1,17 @@
 package org.SmartShop.controller;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpSession;
+import org.SmartShop.service.AuthService;
 import org.SmartShop.dto.auth.AuthResponseDTO;
 import org.SmartShop.dto.auth.LoginRequestDTO;
-import org.SmartShop.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -26,4 +26,5 @@ public class AuthController {
         authService.logout(session);
         return ResponseEntity.ok("Logged out successfully");
     }
+
 }

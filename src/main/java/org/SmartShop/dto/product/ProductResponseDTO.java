@@ -1,8 +1,6 @@
 package org.SmartShop.dto.product;
-
-import lombok.Data;
-
 import java.math.BigDecimal;
+import lombok.Data;
 
 @Data
 public class ProductResponseDTO {
