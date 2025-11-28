@@ -8,9 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    // Find active products with name filter (case insensitive) and pagination
-    Page<Product> findByNameContainingIgnoreCaseAndDeletedFalse(String name, Pageable pageable);
-
-    // Find all active products with pagination (when no filter applied)
+    Page<Product> findByNameContainingIgnoreCaseAndDeletedFalseAndStockAvailableGreaterThan(String name, int stock, Pageable pageable);
+    Page<Product> findByDeletedFalseAndStockAvailableGreaterThan(int stock, Pageable pageable);
     Page<Product> findByDeletedFalse(Pageable pageable);
 }
