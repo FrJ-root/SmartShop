@@ -1,12 +1,11 @@
 package org.SmartShop.service.impl;
 
-import org.SmartShop.entity.Client;
 import org.SmartShop.entity.enums.CustomerTier;
-import org.SmartShop.service.LoyaltyService;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
+import org.SmartShop.service.LoyaltyService;
+import org.SmartShop.entity.Client;
 import java.math.RoundingMode;
+import java.math.BigDecimal;
 
 @Service
 public class LoyaltyServiceImpl implements LoyaltyService {
@@ -79,4 +78,5 @@ public class LoyaltyServiceImpl implements LoyaltyService {
             client.setTier(CustomerTier.BASIC);
         }
     }
+
 }

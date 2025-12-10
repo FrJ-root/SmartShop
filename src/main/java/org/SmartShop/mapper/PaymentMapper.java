@@ -1,6 +1,6 @@
 package org.SmartShop.mapper;
 
-import org.SmartShop.dto.payment.PaymentResponseDTO; // Check this import
+import org.SmartShop.dto.payment.PaymentResponseDTO;
 import org.SmartShop.entity.Payment;
 import org.mapstruct.Mapper;
 

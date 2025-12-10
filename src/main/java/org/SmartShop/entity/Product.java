@@ -1,8 +1,8 @@
 package org.SmartShop.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 import java.math.BigDecimal;
+import lombok.*;
 
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor @Builder

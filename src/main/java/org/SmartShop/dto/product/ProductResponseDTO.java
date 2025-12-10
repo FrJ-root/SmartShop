@@ -1,4 +1,5 @@
 package org.SmartShop.dto.product;
+
 import java.math.BigDecimal;
 import lombok.Data;
 

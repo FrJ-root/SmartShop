@@ -1,19 +1,19 @@
 package org.SmartShop.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.*;
 
-import java.math.BigDecimal;
 
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
-public class OrderItem { // [cite: 133]
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private int quantity;
-    private BigDecimal unitPrice; // Price at moment of purchase
+    private BigDecimal unitPrice;
     private BigDecimal lineTotal;
 
     @ManyToOne

@@ -1,13 +1,13 @@
 package org.SmartShop.security;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.SmartShop.entity.enums.UserRole;
-import org.SmartShop.exception.custom.ForbiddenException; // Import custom exceptions
-import org.SmartShop.exception.custom.UnauthorizedException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
+import org.SmartShop.exception.custom.ForbiddenException;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.SmartShop.exception.custom.UnauthorizedException;
 
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
@@ -22,7 +22,6 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("USER_ID") == null) {
-            // Throw exception instead of response.sendError
             throw new UnauthorizedException("Non authentifié : Veuillez vous connecter.");
         }
 
@@ -34,11 +33,9 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
 
         if (role == UserRole.CLIENT) {
-            // Block DELETE requests for Clients
             if (method.equals("DELETE")) {
                 throw new ForbiddenException("Access Denied: Clients cannot delete resources.");
             }
-            // Add other restrictions if necessary
         }
 
         return true;

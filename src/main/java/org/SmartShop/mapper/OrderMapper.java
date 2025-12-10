@@ -1,11 +1,9 @@
 package org.SmartShop.mapper;
 
-import org.SmartShop.entity.Order;
 import org.SmartShop.entity.OrderItem;
-import org. mapstruct.*;
+import org.SmartShop.entity.Order;
 import org. SmartShop.dto.order.*;
-
-import java.util.List;
+import org. mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {

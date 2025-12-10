@@ -1,28 +1,28 @@
 package org.SmartShop.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
 import org.SmartShop.entity.enums.PaymentStatus;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import lombok.*;
 
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
-public class Payment { // [cite: 134]
+public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int paymentNumber; // Sequential number (1, 2...)
+    private int paymentNumber;
     private BigDecimal amount;
-    private String paymentType; // ESPECES, CHEQUE, VIREMENT [cite: 92]
+    private String paymentType;
 
     private LocalDate paymentDate;
-    private LocalDate encashmentDate; // date_encaissement
-    private LocalDate dueDate; // For checks [cite: 92]
+    private LocalDate encashmentDate;
+    private LocalDate dueDate;
 
-    private String reference; // Check number or Transfer Ref
-    private String bank;      // Bank name
+    private String reference;
+    private String bank;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;

@@ -1,9 +1,9 @@
 package org.SmartShop.service;
 
-import org.SmartShop.dto.product.ProductRequestDTO;
 import org.SmartShop.dto.product.ProductResponseDTO;
-import org.springframework.data.domain.Page;
+import org.SmartShop.dto.product.ProductRequestDTO;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
 public interface ProductService {
     ProductResponseDTO createProduct(ProductRequestDTO dto);

@@ -1,7 +1,7 @@
 package org.SmartShop.entity;
 
-import jakarta.persistence.*;
 import lombok.*;
+import jakarta.persistence.*;
 import org.SmartShop.entity.enums.UserRole;
 
 @Entity

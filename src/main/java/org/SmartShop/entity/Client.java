@@ -1,12 +1,12 @@
 package org. SmartShop.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
 import org.SmartShop. entity.enums.CustomerTier;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.*;
 
 @Entity
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
