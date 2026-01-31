@@ -1,5 +1,8 @@
 package org.SmartShop.controller;
 
+import org.SmartShop.entity.Client;
+import org.SmartShop.exception.custom.ForbiddenException;
+import org.SmartShop.repository.ClientRepository;
 import org.springframework.web.bind.annotation.*;
 import org.SmartShop.dto.order.OrderResponseDTO;
 import org.SmartShop.dto.order.OrderRequestDTO;
@@ -19,6 +22,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final ClientRepository clientRepository;
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<OrderResponseDTO> updateStatus(@PathVariable Long id, @RequestParam OrderStatus status, HttpSession session) {
@@ -39,8 +43,21 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponseDTO> getOrder(@PathVariable Long id) {
-        return ResponseEntity.ok(orderService.getOrderById(id));
+    public ResponseEntity<OrderResponseDTO> getOrder(@PathVariable Long id, HttpSession session) {
+        OrderResponseDTO order = orderService.getOrderById(id);
+
+        UserRole role = (UserRole) session.getAttribute("USER_ROLE");
+        Long sessionUserId = (Long) session.getAttribute("USER_ID");
+
+        if (role == UserRole.CLIENT) {
+            Client client = clientRepository.findByLinkedAccountId(sessionUserId)
+                    .orElseThrow(() -> new ForbiddenException("No client linked to this account"));
+
+            if (!order.getClientId().equals(client.getId())) {
+                throw new ForbiddenException("Access Denied: This is not your order -_-");
+            }
+        }
+        return ResponseEntity.ok(order);
     }
 
     private void checkAdminAccess(HttpSession session) {

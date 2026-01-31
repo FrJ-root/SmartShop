@@ -40,31 +40,36 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDTO updateStatus(Long id, OrderStatus newStatus) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ooops! . Commande introuvable"));
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Check if the current status is final
+        if (order.getStatus() == OrderStatus.CONFIRMED ||
+                order.getStatus() == OrderStatus.REJECTED ||
+                order.getStatus() == OrderStatus.CANCELED) {
+            throw new RuntimeException("Ooops! This order is in a final state and cannot be modified.");
+        }
 
         if (newStatus == OrderStatus.CONFIRMED) {
+            // Must be fully paid [cite: 96, 107]
             if (order.getAmountRemaining().compareTo(BigDecimal.ZERO) > 0) {
-                throw new RuntimeException("Ooops! . Validation Impossible car la commande n'est pas totalement payée. Reste : " + order.getAmountRemaining() + " DH");
+                throw new RuntimeException("Order not fully paid. Remaining: " + order.getAmountRemaining());
             }
 
-            if (order.getStatus() != OrderStatus.PENDING) {
-                throw new RuntimeException("Ooops! . Seules les commandes PENDING peuvent être confirmées");
-            }
-
+            // Decrement stock and update stats [cite: 81, 82]
             for (OrderItem item : order.getOrderItems()) {
                 Product p = item.getProduct();
                 if (p.getStockAvailable() < item.getQuantity()) {
-                    throw new RuntimeException("Ooops! . Stock insuffisant critique pour le produit : " + p.getName());
+                    throw new RuntimeException("Insufficient stock for: " + p.getName());
                 }
                 p.setStockAvailable(p.getStockAvailable() - item.getQuantity());
                 productRepository.save(p);
             }
-
             updateClientStats(order);
         }
         else if (newStatus == OrderStatus.CANCELED) {
+            // Can only cancel if PENDING [cite: 154, 166]
             if (order.getStatus() != OrderStatus.PENDING) {
-                throw new RuntimeException("Ooops! . Seules les commandes PENDING peuvent être annulées ^_-");
+                throw new RuntimeException("Only PENDING orders can be canceled.");
             }
         }
 

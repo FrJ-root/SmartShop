@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class OrderResponseDTO {
     private Long id;
+    private Long clientId;
     private String status;
     private BigDecimal totalTTC;
     private BigDecimal taxAmount;
