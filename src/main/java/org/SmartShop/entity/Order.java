@@ -1,20 +1,20 @@
 package org.SmartShop.entity;
 
 import org.SmartShop.entity.enums.OrderStatus;
-import java. time.LocalDateTime;
-import java.math. BigDecimal;
+import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
 
 @Entity
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "orders")
 public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private BigDecimal amountRemaining;
     private BigDecimal htAfterDiscount;
     private BigDecimal discountAmount;
     private LocalDateTime createdAt;
@@ -24,6 +24,10 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String promoCode;
+    private BigDecimal amountRemaining;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

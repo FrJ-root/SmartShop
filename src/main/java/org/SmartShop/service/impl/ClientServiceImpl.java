@@ -1,23 +1,20 @@
 package org.SmartShop.service.impl;
 
-import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.SmartShop.dto.client.ClientOrderHistoryDTO;
 import org.SmartShop.dto.client.ClientResponseDTO;
 import org.SmartShop.dto.client.ClientRequestDTO;
+import org.SmartShop.entity.Client;
+import org.SmartShop.entity.enums.ClientStatus;
+import org.SmartShop.mapper.ClientMapper;
 import org.SmartShop.repository.ClientRepository;
 import org.SmartShop.repository.OrderRepository;
-import org.SmartShop.repository.UserRepository;
-import org.SmartShop.entity.enums.CustomerTier;
-import org.springframework.stereotype.Service;
-import org.SmartShop.entity.enums.UserRole;
 import org.SmartShop.service.ClientService;
-import org.SmartShop.mapper.ClientMapper;
-import lombok.RequiredArgsConstructor;
-import java.util.stream.Collectors;
-import org.SmartShop.entity.Client;
-import org.SmartShop.entity.User;
-import java.math.BigDecimal;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,43 +22,8 @@ import java.util.List;
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
-    private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final ClientMapper clientMapper;
-
-    @Override
-    public ClientResponseDTO createClient(ClientRequestDTO dto) {
-        if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
-        }
-        if (clientRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        User user = User.builder()
-                .username(dto.getUsername())
-                .password(dto.getPassword())
-                .role(UserRole.CLIENT)
-                .build();
-        user = userRepository.save(user);
-
-        Client client = clientMapper.toEntity(dto);
-        client.setLinkedAccount(user);
-        client.setTier(CustomerTier.BASIC);
-        client.setTotalOrders(0);
-        client.setTotalSpent(BigDecimal.ZERO);
-
-        client = clientRepository.save(client);
-
-        return clientMapper.toDto(client);
-    }
-
-    @Override
-    public ClientResponseDTO getClientById(Long id) {
-        Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
-        return clientMapper.toDto(client);
-    }
 
     @Override
     public ClientResponseDTO updateClient(Long id, ClientRequestDTO dto) {
@@ -71,30 +33,73 @@ public class ClientServiceImpl implements ClientService {
         client.setName(dto.getName());
         client.setEmail(dto.getEmail());
 
-        if (client.getLinkedAccount() != null) {
-            client.getLinkedAccount().setUsername(dto.getUsername());
-            client.getLinkedAccount().setPassword(dto.getPassword());
-        }
-
         return clientMapper.toDto(clientRepository.save(client));
     }
 
     @Override
-    public void deleteClient(Long id) {
-        if (!clientRepository.existsById(id)) {
-            throw new RuntimeException("Client not found");
-        }
-        clientRepository.deleteById(id);
-    }
-
-    @Override
+    @Transactional(readOnly = true)
     public List<ClientOrderHistoryDTO> getClientOrderHistory(Long id) {
-        if (!clientRepository.existsById(id)) {
-            throw new RuntimeException("Client not found");
-        }
         return orderRepository.findByClientId(id).stream()
                 .map(clientMapper::toHistoryDto)
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public ClientResponseDTO createClient(ClientRequestDTO dto) {
+        Client client = clientMapper.toEntity(dto);
+        return clientMapper.toDto(clientRepository.save(client));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ClientResponseDTO getClientById(Long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+        return clientMapper.toDto(client);
+    }
+
+    @Override
+    public void deleteClient(Long id) {
+        try {
+            Client client = clientRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Client not found"));
+            // Soft delete - set deleted flag to true
+            client.setDeleted(true);
+            clientRepository.save(client);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete client: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long getClientCount() {
+        return clientRepository.count();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClientResponseDTO> getAllClients() {
+        return clientRepository.findAll()
+                .stream()
+                .filter(client -> !Boolean.TRUE.equals(client.getDeleted()))
+                .map(clientMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void blockClient(Long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+        client.setStatus(ClientStatus.BLOCKED);
+        clientRepository.save(client);
+    }
+
+    @Override
+    public void unblockClient(Long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+        client.setStatus(ClientStatus.ACTIVE);
+        clientRepository.save(client);
+    }
 }

@@ -20,6 +20,8 @@ public interface ClientMapper {
     @Mapping(target = "firstOrderDate", ignore = true)
     @Mapping(target = "lastOrderDate", ignore = true)
     @Mapping(target = "linkedAccount", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     Client toEntity(ClientRequestDTO dto);
 
     ClientOrderHistoryDTO toHistoryDto(Order order);

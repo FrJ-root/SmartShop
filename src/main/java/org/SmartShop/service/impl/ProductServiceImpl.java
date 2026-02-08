@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.SmartShop.repository.ProductRepository;
 import org.SmartShop.dto.product.ProductRequestDTO;
 import org.SmartShop.dto.product.ProductResponseDTO;
-import org.SmartShop.repository.OrderItemRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
-    private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
@@ -27,14 +25,8 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        boolean isUsedInOrders = orderItemRepository.existsByProductId(id);
-
-        if (isUsedInOrders) {
-            product.setDeleted(true);
-            productRepository.save(product);
-        } else {
-            productRepository.delete(product);
-        }
+        product.setDeleted(true);
+        productRepository.save(product);
     }
 
     @Override
@@ -74,9 +66,9 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> page;
 
         if (search != null && !search.isBlank()) {
-            page = productRepository.findByNameContainingIgnoreCaseAndDeletedFalseAndStockAvailableGreaterThan(search, 0, pageable);
+            page = productRepository.findByNameContainingIgnoreCaseAndDeletedFalse(search, pageable);
         } else {
-            page = productRepository.findByDeletedFalseAndStockAvailableGreaterThan(0, pageable);
+            page = productRepository.findByDeletedFalse(pageable);
         }
 
         return page.map(productMapper::toDto);

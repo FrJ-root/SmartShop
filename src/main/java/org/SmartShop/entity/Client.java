@@ -1,6 +1,7 @@
-package org. SmartShop.entity;
+package org.SmartShop.entity;
 
-import org.SmartShop. entity.enums.CustomerTier;
+import org.SmartShop.entity.enums.ClientStatus;
+import org.SmartShop.entity.enums.CustomerTier;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,7 +10,10 @@ import java.util.List;
 import lombok.*;
 
 @Entity
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,4 +36,11 @@ public class Client {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User linkedAccount;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private ClientStatus status = ClientStatus.ACTIVE;
+
+    @Builder.Default
+    private Boolean deleted = false;
 }

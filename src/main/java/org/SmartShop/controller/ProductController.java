@@ -30,19 +30,27 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody @Valid ProductRequestDTO dto, HttpSession session) {
+    public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody @Valid ProductRequestDTO dto,
+            HttpSession session) {
         checkAdminAccess(session);
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @RequestBody @Valid ProductRequestDTO dto, HttpSession session) {
+    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id,
+            @RequestBody @Valid ProductRequestDTO dto, HttpSession session) {
         checkAdminAccess(session);
         return ResponseEntity.ok(productService.updateProduct(id, dto));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponseDTO> getProduct(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductById(id));
+    }
+
     @GetMapping
-    public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String search) {
+    public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String search) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         return ResponseEntity.ok(productService.getAllProducts(search, pageable));
     }

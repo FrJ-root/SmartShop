@@ -42,20 +42,24 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // Check if the current status is final
-        if (order.getStatus() == OrderStatus.CONFIRMED ||
-                order.getStatus() == OrderStatus.REJECTED ||
-                order.getStatus() == OrderStatus.CANCELED) {
-            throw new RuntimeException("Ooops! This order is in a final state and cannot be modified.");
+        if (order.getStatus() == newStatus) {
+            return orderMapper.toDto(order);
         }
 
+        // Handle reverting side effects if moving AWAY from CONFIRMED
+        if (order.getStatus() == OrderStatus.CONFIRMED && newStatus != OrderStatus.CONFIRMED) {
+            revertStock(order);
+            revertClientStats(order);
+        }
+
+        // Handle applying side effects if moving TO CONFIRMED
         if (newStatus == OrderStatus.CONFIRMED) {
-            // Must be fully paid [cite: 96, 107]
+            // Must be fully paid
             if (order.getAmountRemaining().compareTo(BigDecimal.ZERO) > 0) {
                 throw new RuntimeException("Order not fully paid. Remaining: " + order.getAmountRemaining());
             }
 
-            // Decrement stock and update stats [cite: 81, 82]
+            // Decrement stock and update stats
             for (OrderItem item : order.getOrderItems()) {
                 Product p = item.getProduct();
                 if (p.getStockAvailable() < item.getQuantity()) {
@@ -65,16 +69,35 @@ public class OrderServiceImpl implements OrderService {
                 productRepository.save(p);
             }
             updateClientStats(order);
-        }
-        else if (newStatus == OrderStatus.CANCELED) {
-            // Can only cancel if PENDING [cite: 154, 166]
-            if (order.getStatus() != OrderStatus.PENDING) {
-                throw new RuntimeException("Only PENDING orders can be canceled.");
-            }
+        } else if (newStatus == OrderStatus.CANCELED) {
+            // No strict restriction for admin on when they can cancel, but typically from
+            // PENDING
         }
 
         order.setStatus(newStatus);
         return orderMapper.toDto(orderRepository.save(order));
+    }
+
+    private void revertStock(Order order) {
+        for (OrderItem item : order.getOrderItems()) {
+            Product p = item.getProduct();
+            p.setStockAvailable(p.getStockAvailable() + item.getQuantity());
+            productRepository.save(p);
+        }
+    }
+
+    private void revertClientStats(Order order) {
+        Client client = order.getClient();
+        if (client.getTotalOrders() > 0) {
+            client.setTotalOrders(client.getTotalOrders() - 1);
+        }
+
+        BigDecimal currentSpent = client.getTotalSpent() != null ? client.getTotalSpent() : BigDecimal.ZERO;
+        BigDecimal newSpent = currentSpent.subtract(order.getTotalTTC());
+        client.setTotalSpent(newSpent.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : newSpent);
+
+        loyaltyService.updateClientTier(client);
+        clientRepository.save(client);
     }
 
     @Override
@@ -97,7 +120,8 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItemRequestDTO itemDto : dto.getItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Ooops! . Produit introuvable ID: " + itemDto.getProductId()));
+                    .orElseThrow(
+                            () -> new RuntimeException("Ooops! . Produit introuvable ID: " + itemDto.getProductId()));
 
             if (product.getStockAvailable() < itemDto.getQuantity()) {
                 stockInsufficient = true;
@@ -153,7 +177,8 @@ public class OrderServiceImpl implements OrderService {
         order.setDiscountAmount(totalDiscount);
 
         BigDecimal htAfterDiscount = subTotalHT.subtract(totalDiscount);
-        if (htAfterDiscount.compareTo(BigDecimal.ZERO) < 0) htAfterDiscount = BigDecimal.ZERO;
+        if (htAfterDiscount.compareTo(BigDecimal.ZERO) < 0)
+            htAfterDiscount = BigDecimal.ZERO;
         order.setHtAfterDiscount(htAfterDiscount);
 
         BigDecimal taxAmount = htAfterDiscount.multiply(tvaRate).setScale(2, RoundingMode.HALF_UP);
@@ -177,13 +202,19 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll().stream().map(orderMapper::toDto).toList();
     }
 
+    @Override
+    public List<OrderResponseDTO> getOrdersByClientId(Long clientId) {
+        return orderRepository.findByClientId(clientId).stream().map(orderMapper::toDto).toList();
+    }
+
     private void updateClientStats(Order order) {
         Client client = order.getClient();
         client.setTotalOrders(client.getTotalOrders() + 1);
         BigDecimal currentSpent = client.getTotalSpent() != null ? client.getTotalSpent() : BigDecimal.ZERO;
         client.setTotalSpent(currentSpent.add(order.getTotalTTC()));
 
-        if (client.getFirstOrderDate() == null) client.setFirstOrderDate(LocalDate.now());
+        if (client.getFirstOrderDate() == null)
+            client.setFirstOrderDate(LocalDate.now());
         client.setLastOrderDate(LocalDate.now());
 
         loyaltyService.updateClientTier(client);

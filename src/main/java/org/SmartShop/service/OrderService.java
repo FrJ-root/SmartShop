@@ -7,7 +7,12 @@ import java.util.List;
 
 public interface OrderService {
     OrderResponseDTO createOrder(OrderRequestDTO dto);
+
     OrderResponseDTO getOrderById(Long id);
+
     List<OrderResponseDTO> getAllOrders();
+
+    List<OrderResponseDTO> getOrdersByClientId(Long clientId);
+
     OrderResponseDTO updateStatus(Long id, OrderStatus newStatus);
 }

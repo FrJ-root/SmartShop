@@ -8,7 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Page<Product> findByNameContainingIgnoreCaseAndDeletedFalseAndStockAvailableGreaterThan(String name, int stock, Pageable pageable);
+    Page<Product> findByNameContainingIgnoreCaseAndDeletedFalseAndStockAvailableGreaterThan(String name, int stock,
+            Pageable pageable);
+
     Page<Product> findByDeletedFalseAndStockAvailableGreaterThan(int stock, Pageable pageable);
+
+    Page<Product> findByNameContainingIgnoreCaseAndDeletedFalse(String name, Pageable pageable);
+
     Page<Product> findByDeletedFalse(Pageable pageable);
 }

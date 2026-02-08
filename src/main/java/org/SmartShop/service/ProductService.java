@@ -7,8 +7,12 @@ import org.springframework.data.domain.Page;
 
 public interface ProductService {
     ProductResponseDTO createProduct(ProductRequestDTO dto);
+
     ProductResponseDTO updateProduct(Long id, ProductRequestDTO dto);
+
     void deleteProduct(Long id);
+
     Page<ProductResponseDTO> getAllProducts(String search, Pageable pageable);
+
     ProductResponseDTO getProductById(Long id);
 }

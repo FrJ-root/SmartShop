@@ -25,7 +25,8 @@ public class OrderController {
     private final ClientRepository clientRepository;
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<OrderResponseDTO> updateStatus(@PathVariable Long id, @RequestParam OrderStatus status, HttpSession session) {
+    public ResponseEntity<OrderResponseDTO> updateStatus(@PathVariable Long id, @RequestParam OrderStatus status,
+            HttpSession session) {
 
         checkAdminAccess(session);
         return ResponseEntity.ok(orderService.updateStatus(id, status));
@@ -38,8 +39,17 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders(HttpSession session) {
-        checkAdminAccess(session);
-        return ResponseEntity.ok(orderService.getAllOrders());
+        UserRole role = (UserRole) session.getAttribute("USER_ROLE");
+        Long sessionUserId = (Long) session.getAttribute("USER_ID");
+
+        if (role == UserRole.ADMIN) {
+            return ResponseEntity.ok(orderService.getAllOrders());
+        }
+
+        Client client = clientRepository.findByLinkedAccountId(sessionUserId)
+                .orElseThrow(() -> new ForbiddenException("No client linked to this account"));
+
+        return ResponseEntity.ok(orderService.getOrdersByClientId(client.getId()));
     }
 
     @GetMapping("/{id}")
