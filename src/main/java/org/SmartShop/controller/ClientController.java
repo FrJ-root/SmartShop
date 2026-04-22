@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.SmartShop.entity.Client;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.SmartShop.exception.custom.ForbiddenException;
 
 @RestController
 @RequiredArgsConstructor

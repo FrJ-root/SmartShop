@@ -24,6 +24,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final PaymentMapper paymentMapper;
+    private final org.SmartShop.service.SqsMessageSender sqsMessageSender;
 
     private static final BigDecimal CASH_LIMIT = new BigDecimal("20000.00");
 
@@ -62,6 +63,9 @@ public class PaymentServiceImpl implements PaymentService {
         BigDecimal newRemaining = order.getAmountRemaining().subtract(dto.getAmount());
         order.setAmountRemaining(newRemaining);
         orderRepository.save(order);
+
+        // Send Async Message via SQS
+        sqsMessageSender.sendMessage("Payment RECORDED for Order ID: " + order.getId() + " | Amount: " + dto.getAmount() + " DH");
 
         return paymentMapper.toDto(savedPayment);
     }
